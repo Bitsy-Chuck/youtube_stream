@@ -2,3 +2,5 @@
 /__pycache__
 in.txt
 .idea
+/dtos/__pycache__/
+dtos/__pycache__

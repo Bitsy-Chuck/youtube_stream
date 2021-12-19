@@ -1,0 +1,8 @@
+# rmq
+QUEUE_NAME = 'fampay'
+EXCHANGE_NAME = ''
+RMQ_HOST = 'localhost'
+
+# API
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_SERVICE_VERSION = "v3"

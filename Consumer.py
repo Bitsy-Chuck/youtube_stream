@@ -1,12 +1,15 @@
 import json
-import pika
+import Constants
 import db
+import rmq
 
-
+'''
+TODO:
+1. Add message retry
+'''
 def consume():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel = connection.channel()
-    channel.basic_consume(queue='queue_name', on_message_callback=process, auto_ack=True)
+    channel, _conn = rmq.get_rmq_conn()
+    channel.basic_consume(queue=Constants.QUEUE_NAME, on_message_callback=process, auto_ack=True)
     channel.start_consuming()
     print("done")
 

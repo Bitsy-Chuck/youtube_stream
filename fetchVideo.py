@@ -3,9 +3,14 @@ import time
 from datetime import datetime
 from pprint import pprint
 import pika
+from environs import Env
 
 import googleapiclient.discovery
 
+import Constants
+import db
+import rmq
+from dtos.Thumbnail import Thumbnail
 from dtos.VideoInfo import VideoInfo
 
 '''
@@ -13,13 +18,15 @@ TODO:
 1. Get latest or after a specific time to avoid duplicates
 2. Put variables in .env file 
 3. Store scheduler jobs in a job store
+4. Encrypt and decrypt API Keys for db storage [FUTURE SCOPE]
 '''
 
+
 def fetch_video(keyword):
-    api_service_name = 'youtube'
-    api_version = 'v3'
-    API_KEY = 'AIzaSyA8X2GRCuphXvyDp5j_Uep4Abv9cNQz0PM'
-    # client = googleapiclient.discovery.build(api_service_name, api_version, developerKey=API_KEY)
+    api_service_name = Constants.YOUTUBE_API_SERVICE_NAME
+    api_version = Constants.YOUTUBE_API_SERVICE_VERSION
+    key = db.fetch_api_key()
+    # client = googleapiclient.discovery.build(api_service_name, api_version, developerKey=key.api_key)
     # request = client.search().list(part="snippet", maxResults=2, type="video", q=keyword)
     # resp = request.execute()
     print(f"fetch {keyword} at ", datetime.today())
@@ -28,21 +35,11 @@ def fetch_video(keyword):
     # for i in resp.get('items'):
     for i in resp:
         i = i.get('snippet')
-        thumbnail_urls = {"default": i.get("thumbnails").get('default'), "medium": i.get("thumbnails").get('medium'),
-                          "high": i.get("thumbnails").get('high')}
-        mssg = VideoInfo(i.get('title'), i.get('description'), i.get('publishTime'), json.dumps(thumbnail_urls))
-        publish_mssg_rmq(mssg.toJSON())
+        thumbnail_urls = Thumbnail(i.get("thumbnails").get('default').get('url'),
+                                   i.get("thumbnails").get('default').get('url'),
+                                   i.get("thumbnails").get('default').get('url'))
+        msg = VideoInfo(keyword, i.get('title'), i.get('description'), i.get('publishTime'),
+                        thumbnail_urls.toJSON(), key.id)
+        rmq.publish_mssg_rmq(msg.toJSON())
 
-
-def get_rmq_conn():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel = connection.channel()
-    channel.queue_declare(queue='queue_name', durable=True)
-    return channel, connection
-
-
-def publish_mssg_rmq(mssg):
-    channel, conn = get_rmq_conn()
-    channel.basic_publish(exchange="", routing_key='queue_name', body=mssg)
-    print("published ", mssg)
-    conn.close()
+# fetch_video("an")
