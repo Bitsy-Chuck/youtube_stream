@@ -48,7 +48,7 @@ def hello_world():
 @app.route('/fetch/<keyword>')
 def fetch(keyword):
     scheduler.add_job(func=fetchVideo.fetch_video, kwargs={"keyword": keyword}, trigger="interval", seconds=10)
-    return "done"
+    return flask.jsonify({"success": True})
 
 @app.route('/video/info/<keyword>')
 def get_videos(keyword):

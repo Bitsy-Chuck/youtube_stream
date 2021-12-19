@@ -26,14 +26,14 @@ def fetch_video(keyword):
     api_service_name = Constants.YOUTUBE_API_SERVICE_NAME
     api_version = Constants.YOUTUBE_API_SERVICE_VERSION
     key = db.fetch_api_key()
-    # client = googleapiclient.discovery.build(api_service_name, api_version, developerKey=key.api_key)
-    # request = client.search().list(part="snippet", maxResults=2, type="video", q=keyword)
-    # resp = request.execute()
+    client = googleapiclient.discovery.build(api_service_name, api_version, developerKey=key.api_key)
+    request = client.search().list(part="snippet", maxResults=2, type="video", q=keyword)
+    resp = request.execute()
     print(f"fetch {keyword} at ", datetime.today())
-    with open("in.txt", 'r') as f:
-        resp = json.load(f)
-    # for i in resp.get('items'):
-    for i in resp:
+    # with open("in.txt", 'r') as f:
+    #     resp = json.load(f)
+    for i in resp.get('items'):
+    # for i in resp:
         i = i.get('snippet')
         thumbnail_urls = Thumbnail(i.get("thumbnails").get('default').get('url'),
                                    i.get("thumbnails").get('default').get('url'),
@@ -41,5 +41,3 @@ def fetch_video(keyword):
         msg = VideoInfo(keyword, i.get('title'), i.get('description'), i.get('publishTime'),
                         thumbnail_urls.toJSON(), key.id)
         rmq.publish_mssg_rmq(msg.toJSON())
-
-# fetch_video("an")
