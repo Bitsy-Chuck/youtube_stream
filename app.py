@@ -25,16 +25,19 @@ app.config.from_object(Config())
 
 scheduler = BackgroundScheduler()
 scheduler.start()
-thread = Thread(target=Consumer.consume)
+thread = None
 
+def start_consumer():
+    global thread
+    # Starts the consumer on a separate thread bcz channel.start_consuming is a blocking call
+    thread = Thread(target=Consumer.consume)
+    thread.start()
 @app.before_first_request
 def init():
     db.init_conn_db()
     db.run_evolutions()
     rmq.init_rmq_conn()
-    # Starts the consumer on a separate thread bcz channel.start_consuming is a blocking call
-    thread.start()
-
+    start_consumer()
 @app.route('/')
 def hello_world():
     return 'Hello World!'

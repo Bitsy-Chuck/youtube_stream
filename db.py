@@ -89,7 +89,7 @@ def save_video_info(video_info):
      );
     """
     print(query)
-    commit_to_db(query, video_info)
+    commit_to_db(query)
     print("inserted ", video_info)
 
 

@@ -4,6 +4,7 @@ import Constants
 
 _channel = None
 _conn = None
+
 def init_rmq_conn():
     global _channel, _conn
     _conn = pika.BlockingConnection(pika.ConnectionParameters(host=Constants.RMQ_HOST))
@@ -11,10 +12,13 @@ def init_rmq_conn():
     _channel.queue_declare(queue=Constants.QUEUE_NAME, durable=True)
 
 def get_rmq_conn():
+    if _channel is None or _conn is None or _conn.is_closed:
+        init_rmq_conn()
     return _channel, _conn
 
 
 def publish_mssg_rmq(mssg):
+    get_rmq_conn()
     _channel.basic_publish(exchange=Constants.EXCHANGE_NAME, routing_key=Constants.QUEUE_NAME, body=mssg)
     print("published ", mssg)
 
