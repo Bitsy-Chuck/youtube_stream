@@ -1,7 +1,9 @@
 import json
 from datetime import datetime
+from pprint import pprint
+
 from environs import Env
-import environs
+from psycopg2.extras import RealDictCursor
 import psycopg2
 
 from dtos.ApiKeyResponse import ApiKeyResponse
@@ -125,12 +127,13 @@ def fetch_api_key():
 
 def get_latest_videos(keyword):
     # TODO: Get paginated response
+    cur = _conn.cursor(cursor_factory=RealDictCursor)
     query = f"""
-    select * from video where keyword = {keyword} order by publish_time desc;
+    select * from video where keyword = '{keyword}' order by publish_time desc;
     """
-    _cur.execute(query)
-    res = _cur.fetchall()
-    return json.dump(res)
+    cur.execute(query)
+    res = cur.fetchall()
+    return json.dumps(res, default=str, indent=4)
 
 
 def close_connection():

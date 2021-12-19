@@ -1,5 +1,7 @@
+import json
 from threading import Thread
 
+import flask
 from environs import Env
 from flask import Flask
 
@@ -48,10 +50,10 @@ def fetch(keyword):
     scheduler.add_job(func=fetchVideo.fetch_video, kwargs={"keyword": keyword}, trigger="interval", seconds=10)
     return "done"
 
-@app.route('/video/info')
-def get_videos():
-    res = db.get_latest_videos()
-    return res
+@app.route('/video/info/<keyword>')
+def get_videos(keyword):
+    res = db.get_latest_videos(keyword)
+    return flask.jsonify(json.loads(res))
 
 def clean_up():
     thread.join()
@@ -62,7 +64,7 @@ def clean_up():
 
 if __name__ == '__main__':
     try:
-        app.run()
+        app.run(debug=True)
     except KeyboardInterrupt:
         clean_up()
         print("Exiting")
