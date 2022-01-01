@@ -1,5 +1,5 @@
 # What is this about?  
-  
+![Architecture](./image_2022-01-01_221048.png?raw=true "Architecture")
 # How to setup locally  
 ### Database 
 I have used postgresql db and psycog2 db connector in the application. To set it up please follow [official instructions](https://www.postgresql.org/download/). After downloading create a database of your choice and update the name in the `.env` file. Run db insertion commands listed in `public/1.sql` which will insert your google project API key into the database which will be used to fetch content from youtube. 
